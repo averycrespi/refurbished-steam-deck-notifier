@@ -7,18 +7,19 @@
 [![Ko-fi](https://img.shields.io/badge/Buy%20me%20a%20coffee-Ko--fi-FF5E5B?logo=kofi&logoColor=white&style=flat)](https://ko-fi.com/looti)
 # Refurbished Steam Deck Notifier
 
-This script checks the availability of refurbished Steam Decks on Steam and sends notifications to a specified Discord webhook. It queries Steam's API and compares the current stock status with previously stored values.
+This script checks the availability of refurbished Steam Decks on Steam and sends notifications via Pushover API. It queries Steam's API and compares the current stock status with previously stored values.
 
 ## 🚀 Features
 
 * Checks the availability of refurbished Steam Decks for a configurable country
-* Sends notifications via a **Discord webhook** when stock availability changes
+* Sends notifications via **Pushover API** when stock availability changes
 * Supports different Steam Deck models (LCD & OLED versions)
 * Prevents duplicate notifications by storing the last known stock status
 * **Optional CSV logging** for availability statistics
-* **Configurable Discord role pings** via JSON file
 * **Command-line arguments** for easy configuration
-* **Prebuilt executables** for users who don’t want to install Python
+* **Environment variable configuration** for secure API credentials
+* **Test notification support** to verify configuration
+* **Prebuilt executables** for users who don't want to install Python
 
 ## 📋 Requirements (for Python script users)
 
@@ -27,7 +28,12 @@ This script checks the availability of refurbished Steam Decks on Steam and send
 Ensure you have **Python 3.x** installed. Then, install the required dependencies using:
 
 ```bash
-pip install requests discord-webhook
+pip install -r requirements.txt
+```
+
+Or install manually:
+```bash
+pip install requests pushover-complete python-dotenv
 ```
 
 ## 🛠 Setup & Usage
@@ -43,53 +49,65 @@ steam_deck_notifier (Linux/macOS)
 
 #### How to Run
 
-Run it via terminal/command prompt:
+1. First, set up your Pushover credentials (see Configuration section below)
+2. Run it via terminal/command prompt:
 
 ```bash
-./steam_deck_notifier --webhook-url "https://discord.com/api/webhooks/YOUR_WEBHOOK"
+./steam_deck_notifier
 ```
 
 You can pass the same arguments as you would for the Python version.
 
 ### Option 2: Run the Python Script
 
+1. First, set up your Pushover credentials (see Configuration section below)
+2. Run the script:
+
 ```bash
-python steam_deck_checker.py --webhook-url "https://discord.com/api/webhooks/YOUR_WEBHOOK"
+python notifier.py
+```
+
+### Configuration
+
+#### Pushover API Setup
+
+1. Create an account at [Pushover.net](https://pushover.net/)
+2. Create a new application at [https://pushover.net/apps/build](https://pushover.net/apps/build) to get your API token
+3. Copy `.env.example` to `.env`:
+
+```bash
+cp .env.example .env
+```
+
+4. Edit `.env` with your credentials:
+
+```
+PUSHOVER_API_TOKEN=your_application_token_here
+PUSHOVER_USER_KEY=your_user_key_here
 ```
 
 ### Command Line Arguments
 
 * `-h`: Provides list of possible Arguments
-* `--webhook-url`: Discord webhook URL for notifications (**required**)
-* `--country-code`: Country code for Steam API (default: `DE`, **important**)
-* `--role-mapping`: JSON file containing Discord role mappings (optional)
+* `--country-code`: Country code for Steam API (default: `CA`)
 * `--csv-dir`: Directory path for daily CSV log files (optional)
+* `--test-notification`: Send a test notification to verify configuration
 
 ### Full Example
 
 ```bash
-python steam_deck_checker.py \
+python notifier.py \
   --country-code US \
-  --webhook-url "https://discord.com/api/webhooks/YOUR_WEBHOOK" \
-  --role-mapping roles.json \
   --csv-dir csv-logs
 ```
 
-### Discord Role Mapping (Optional)
+### Test Your Setup
 
-Create a `roles.json` file like this to ping specific Discord roles when stock is available:
+After configuring your `.env` file, test the notification system:
 
-```json
-{
-  "903905": "1343233406791716875",
-  "903906": "1343233552896229508",
-  "903907": "1343233731795881994",
-  "1202542": "1343233909655343234",
-  "1202547": "1343234052957802670"
-}
+```bash
+python notifier.py --test-notification
 ```
-
-**Format:** `"package_id": "discord_role_id"`
 
 ### Country Codes
 
@@ -107,10 +125,10 @@ The script checks availability for these models:
 
 ## 🔧 How It Works
 
-1. Requests stock status for Steam Deck models via Steam’s API
-2. Compares new status with the last known state stored in text files
-3. Sends a Discord notification if availability changes
-4. Optionally pings configured roles via `roles.json`
+1. Loads Pushover API credentials from `.env` file
+2. Requests stock status for Steam Deck models via Steam's API
+3. Compares new status with the last known state stored in text files
+4. Sends a Pushover notification if availability changes
 5. Optionally logs the check results to a CSV file
 
 ## 📊 CSV Logging
@@ -138,15 +156,17 @@ crontab -e
 Add this line to check every 3 minutes:
 
 ```bash
-*/3 * * * * /path/to/steam_deck_notifier --webhook-url "YOUR_WEBHOOK" >> /path/to/logfile.log 2>&1
+*/3 * * * * cd /path/to/project && /path/to/steam_deck_notifier >> /path/to/logfile.log 2>&1
 ```
 
 ## 📦 Dependencies & Attribution
 
-This project uses the excellent [**python-discord-webhook**](https://github.com/lovvskillz/python-discord-webhook) library by [lovvskillz](https://github.com/lovvskillz)
-Licensed under the MIT License.
+This project uses the following open-source libraries:
+- [**pushover-complete**](https://github.com/sander76/pushover_complete) - A comprehensive Python interface for Pushover API
+- [**python-dotenv**](https://github.com/theskumar/python-dotenv) - For loading environment variables from `.env` files
+- [**requests**](https://github.com/psf/requests) - For making HTTP requests to Steam's API
 
-It also makes use of Valve’s public Steam Store API — specifically the  
+It also makes use of Valve's public Steam Store API — specifically the  
 [`CheckInventoryAvailableByPackage`](https://api.steampowered.com/IPhysicalGoodsService/CheckInventoryAvailableByPackage/v1?origin=https:%2F%2Fstore.steampowered.com) endpoint ([documentation](https://steamapi.xpaw.me/#IPhysicalGoodsService)). Data and trademarks belong to [Valve Corporation](https://www.valvesoftware.com/), owners of Steam and Steam Deck.
 
 Big thanks to all contributors and maintainers of the open-source packages used in this project.

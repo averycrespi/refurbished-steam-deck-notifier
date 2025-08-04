@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Development Environment
 
-This is a Python project that monitors Steam Deck availability and sends Discord notifications. The main script is `notifier.py`.
+This is a Python project that monitors Steam Deck availability and sends Pushover notifications. The main script is `notifier.py`.
 
 ### Dependencies
 Install dependencies using:
@@ -14,27 +14,40 @@ pip install -r requirements.txt
 
 Required packages:
 - `requests` - for Steam API calls
-- `discord-webhook` - for Discord notifications
+- `pushover-complete` - for Pushover notifications
+- `python-dotenv` - for loading environment variables
+
+### Environment Setup
+
+Before running the application, set up your Pushover credentials:
+
+1. Copy `.env.example` to `.env`:
+```bash
+cp .env.example .env
+```
+
+2. Edit `.env` with your Pushover credentials:
+```
+PUSHOVER_API_TOKEN=your_application_token_here
+PUSHOVER_USER_KEY=your_user_key_here
+```
 
 ### Running the Application
 
-Run the main script with required arguments:
+Run the main script:
 ```bash
-python notifier.py --webhook-url "https://discord.com/api/webhooks/YOUR_WEBHOOK"
+python notifier.py
 ```
 
 Common command line options:
-- `--webhook-url`: Discord webhook URL (required)
-- `--country-code`: Country code for Steam API (default: DE)
-- `--role-mapping`: JSON file for Discord role pings (optional)
+- `--country-code`: Country code for Steam API (default: CA)
 - `--csv-dir`: Directory for CSV logging (optional)
+- `--test-notification`: Send a test notification
 
 Full example:
 ```bash
 python notifier.py \
   --country-code US \
-  --webhook-url "https://discord.com/api/webhooks/YOUR_WEBHOOK" \
-  --role-mapping roles.json \
   --csv-dir csv-logs
 ```
 
@@ -60,10 +73,10 @@ python notifier.py \
 - 1TB OLED (Package ID: 1202547)
 
 ### Notification Logic
-- Only sends Discord notifications when availability status changes
-- Supports optional Discord role pinging via JSON configuration
+- Only sends Pushover notifications when availability status changes
 - Prevents duplicate notifications by comparing with stored previous state
+- Uses environment variables for secure credential storage
 
 ### Configuration Files
-- `roles.json`: Maps package IDs to Discord role IDs for targeted notifications
-- Format: `{"package_id": "discord_role_id"}`
+- `.env`: Contains Pushover API credentials (not tracked in git)
+- `.env.example`: Template for environment variables
