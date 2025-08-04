@@ -149,11 +149,19 @@ def main():
     if args.csv_log:
         print("w: Deprecated: This option is no longer supported (last supported version v2.0.0).")
     
+    # Load environment variables
+    load_dotenv()
+    
+    # Validate Pushover credentials
+    api_token = os.getenv('PUSHOVER_API_TOKEN')
+    user_key = os.getenv('PUSHOVER_USER_KEY')
+    
+    if not api_token or not user_key:
+        print("Error: Missing Pushover credentials. Please set PUSHOVER_API_TOKEN and PUSHOVER_USER_KEY in .env file")
+        return
+    
     csv_dir = args.csv_dir if args.csv_dir else ""
     initialize_logs(csv_dir, args.country_code)
-    
-    # Load role mapping
-    role_ids = load_role_mapping(args.role_mapping)
     
     if csv_dir:
         today_file = get_daily_csv_path(csv_dir, args.country_code)
@@ -162,7 +170,17 @@ def main():
         print("Logging disabled")
     
     print(f"Country code: {args.country_code}")
-    print(f"Webhook URL: {args.webhook_url}")
+    print("Pushover notifications enabled")
+    
+    # Handle test notification
+    if args.test_notification:
+        try:
+            pushover = PushoverAPI(api_token)
+            pushover.send_message(user_key, "Test notification from Steam Deck notifier")
+            print("Test notification sent successfully!")
+        except Exception as e:
+            print(f"Failed to send test notification: {e}")
+        return
     
     # Steam Deck models
     models = [
@@ -172,17 +190,10 @@ def main():
         ("512", "1202542", True),   # 512gb oled
         ("1024", "1202547", True),  # 1tb oled
     ]   
-
-    if role_ids:
-        print(f"Role mapping loaded: {len(role_ids)} entries")
-        if not len(role_ids) == len(models):
-            print("Warning..............Role mapping doesn't match models. Pinging roles won't work as expected.")
-    else:
-        print("No role mapping - notifications will not ping roles")
     
     for version, package_id, is_oled in models:
         superduperscraper(version, package_id, is_oled, csv_dir, 
-                         args.country_code, args.webhook_url, role_ids)
+                         args.country_code, api_token, user_key)
 
 if __name__ == "__main__":
     main()
