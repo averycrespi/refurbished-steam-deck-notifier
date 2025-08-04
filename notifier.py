@@ -16,17 +16,17 @@
 
 from time import gmtime, strftime
 import requests
-from discord_webhook import DiscordWebhook
 import os
 import csv
 from datetime import datetime
 import argparse
 import json
+from dotenv import load_dotenv
+from pushover_complete import PushoverAPI
 
 
 # Default values
-DEFAULT_COUNTRY_CODE = 'DE'
-DEFAULT_WEBHOOK_URL = "https://discord.com/api/webhooks/some_webhook"
+DEFAULT_COUNTRY_CODE = 'CA'
 
 def get_daily_csv_path(csv_dir: str, country_code: str) -> str:
     """Generate the CSV file path for today's date and country"""
