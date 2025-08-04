@@ -123,17 +123,6 @@ def superduperscraper(version, urlSuffix, isOLED: bool, csv_dir: str, country_co
     except Exception as e:
         print(f"Unexpected error for {version}GB: {e}")
 
-def load_role_mapping(role_file: str) -> dict:
-    """Load role mapping from JSON file"""
-    if not role_file or not os.path.exists(role_file):
-        return {}
-    
-    try:
-        with open(role_file, 'r', encoding='utf-8') as f:
-            return json.load(f)
-    except (json.JSONDecodeError, IOError) as e:
-        print(f"Warning: Could not load role mapping from {role_file}: {e}")
-        return {}
 
 def main():
     """Main function to check all Steam Deck models"""
