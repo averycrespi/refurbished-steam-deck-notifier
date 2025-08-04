@@ -19,9 +19,8 @@ This script checks the availability of refurbished Steam Decks on Steam and send
 * **Command-line arguments** for easy configuration
 * **Environment variable configuration** for secure API credentials
 * **Test notification support** to verify configuration
-* **Prebuilt executables** for users who don't want to install Python
 
-## 📋 Requirements (for Python script users)
+## 📋 Requirements
 
 ### Install Dependencies
 
@@ -38,27 +37,7 @@ pip install requests pushover-complete python-dotenv
 
 ## 🛠 Setup & Usage
 
-### Option 1: Use the Prebuilt Executable (No Python Needed)
-
-Download the prebuilt executable for your platform (Windows, Linux, etc.). The file is typically named:
-
-```
-steam_deck_notifier.exe (Windows)
-steam_deck_notifier (Linux/macOS)
-```
-
-#### How to Run
-
-1. First, set up your Pushover credentials (see Configuration section below)
-2. Run it via terminal/command prompt:
-
-```bash
-./steam_deck_notifier
-```
-
-You can pass the same arguments as you would for the Python version.
-
-### Option 2: Run the Python Script
+### Setup and Execution
 
 1. First, set up your Pushover credentials (see Configuration section below)
 2. Run the script:
@@ -143,7 +122,7 @@ When using `--csv-dir`, the script writes one CSV file for each day to the speci
 
 ## ⏲️ Running Periodically
 
-This script/executable **does not run continuously**. Use cron (Linux/macOS) or Task Scheduler (Windows) to automate execution.
+This script **does not run continuously**. Use cron (Linux/macOS) or Task Scheduler (Windows) to automate execution.
 
 ### Example (Linux/macOS)
 
@@ -156,7 +135,7 @@ crontab -e
 Add this line to check every 3 minutes:
 
 ```bash
-*/3 * * * * cd /path/to/project && /path/to/steam_deck_notifier >> /path/to/logfile.log 2>&1
+*/3 * * * * cd /path/to/project && python notifier.py >> /path/to/logfile.log 2>&1
 ```
 
 ## 📦 Dependencies & Attribution
