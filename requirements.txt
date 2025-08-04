@@ -1,2 +1,3 @@
 requests
-discord-webhook
+python-dotenv>=1.0.0
+pushover-complete>=2.0.0
