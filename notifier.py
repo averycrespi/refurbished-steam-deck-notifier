@@ -140,9 +140,8 @@ def main():
     parser.add_argument('--csv-dir', help='Directory path for daily CSV log files')
     parser.add_argument('--country-code', default=DEFAULT_COUNTRY_CODE, 
                        help=f'Country code for Steam API (default: {DEFAULT_COUNTRY_CODE})')
-    parser.add_argument('--webhook-url', default=DEFAULT_WEBHOOK_URL,
-                       help='Discord webhook URL for notifications')
-    parser.add_argument('--role-mapping', help='JSON file containing package_id to role_id mapping')
+    parser.add_argument('--test-notification', action='store_true',
+                       help='Send test notification and exit')
     parser.add_argument('--csv-log', help='Deprecated: This option is no longer supported (last supported version v2.0.0).')
     
     args = parser.parse_args()
