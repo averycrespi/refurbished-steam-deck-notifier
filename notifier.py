@@ -67,14 +67,12 @@ def log_availability_data(version, package_id, available, is_oled, csv_dir: str,
         writer = csv.writer(f)
         writer.writerow([unix_timestamp, version, display_type, package_id, available])
 
-def superduperscraper(version, urlSuffix, isOLED: bool, csv_dir: str, country_code: str, webhook_url: str, role_ids: dict):
+def superduperscraper(version, urlSuffix, isOLED: bool, csv_dir: str, country_code: str, api_token: str, user_key: str):
     # Build Steam API URL with country code
     url = f'https://api.steampowered.com/IPhysicalGoodsService/CheckInventoryAvailableByPackage/v1?origin=https:%2F%2Fstore.steampowered.com&country_code={country_code}&packageid='
     
-    # Create Discord webhook
-    webhook = DiscordWebhook(url=webhook_url, content="error")
-    
-    roleIdWithCountry = role_ids.get(urlSuffix, "") if role_ids else ""
+    # Create Pushover client
+    pushover = PushoverAPI(api_token)
     
     oldvalue = ""
     # Get previous availability from file
@@ -105,16 +103,19 @@ def superduperscraper(version, urlSuffix, isOLED: bool, csv_dir: str, country_co
         # Log data
         log_availability_data(version, urlSuffix, availability == "True", isOLED, csv_dir, country_code)
         
-        # Send Discord notification only on status change
+        # Send Pushover notification only on status change
         if status_changed:
             display_type = "OLED" if isOLED else "LCD"
             if availability == "True":
-                # Include role ping only if role ID exists
-                role_ping = f" <@&{roleIdWithCountry}>" if roleIdWithCountry else ""
-                webhook.content = f"refurbished {version}GB {display_type} steam deck available{role_ping}"
+                message = f"refurbished {version}GB {display_type} steam deck available"
             else:
-                webhook.content = f"refurbished {version}GB {display_type} steam deck not available"
-            webhook.execute()
+                message = f"refurbished {version}GB {display_type} steam deck not available"
+            
+            try:
+                pushover.send_message(user_key, message)
+                print(f"Notification sent: {message}")
+            except Exception as e:
+                print(f"Failed to send notification: {e}")
             
     except requests.RequestException as e:
         print(f"Error fetching data for {version}GB: {e}")
