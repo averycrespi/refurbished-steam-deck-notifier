@@ -108,3 +108,5 @@ dmypy.json
 # CSV log directories
 csv-logs/
 logs/
+
+*_CA.txt
